@@ -1,0 +1,46 @@
+from sklearn import feature_extraction
+import pandas as pd
+
+def one_hot_dataframe(data, cols, replace=False):
+    """ Takes a dataframe and a list of columns that need to be encoded.
+        Returns a 3-tuple comprising the data, the vectorized data,
+        and the fitted vectorizor.
+        Modified from https://gist.github.com/kljensen/5452382
+    """
+    vec = feature_extraction.DictVectorizer()
+    mkdict = lambda row: dict((col, row[col]) for col in cols)
+    vecData = pd.DataFrame(vec.fit_transform(data[cols].to_dict(outtype='records')).toarray())
+    vecData.columns = vec.get_feature_names()
+    vecData.index = data.index
+    if replace is True:
+        data = data.drop(cols, axis=1)
+        data = data.join(vecData)
+    return (data, vecData)
+
+def format_dataframe(dataframe):
+	""" Take a dataframe and do several things:
+		1. Remove irrelevant columns
+		2. Change 'sentiment' column to 'category' type instead
+		   of 'string'
+	    3. One-hot encoding 'target' column
+
+	    Returns:
+	    target (what we want to predict) and, 
+	    features (list of features)
+	"""
+	dataframe.fillna(0,inplace=True)
+	# Remove irrelevant columns
+	del dataframe["user id"]
+	del dataframe["tweet id"]
+	del dataframe["username"]
+	del dataframe["annotator id"]
+
+	# change 'sentiment' to category type instead of string
+	dataframe["sentiment"] = dataframe["sentiment"].astype('category') 
+	# One-hot encoding 'target'
+	dataframe, _= one_hot_dataframe(dataframe, ['target'], replace=True)
+	target = dataframe["sentiment"]
+	del dataframe["sentiment"]
+	features = dataframe.as_matrix()
+
+	return target, features
