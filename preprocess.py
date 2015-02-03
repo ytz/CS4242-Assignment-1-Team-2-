@@ -3,6 +3,7 @@ from nltk.stem.porter import PorterStemmer
 from nltk.stem.wordnet import WordNetLemmatizer
 from nltk.corpus import stopwords
 import pandas as pd
+import re
 
 
 def preprocess(df):
@@ -24,6 +25,12 @@ def preprocess(df):
         # TO-DO: Hashtag
 
         # TO-DO: RT/@/URL
+        tweet.replace("RT", "")
+        # http://stackoverflow.com/questions/2304632/regex-for-twitter-username
+        tweet = re.sub('(?<=^|(?<=[^a-zA-Z0-9-\.]))@([A-Za-z_]+[A-Za-z0-9_]+)', "", tweet)
+        tweet = re.sub('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', "url", tweet)
+
+        # POS tag
 
         # Tokenise
         df = tokenise(df, tweet)
