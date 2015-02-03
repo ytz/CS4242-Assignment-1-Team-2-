@@ -13,11 +13,17 @@ def preprocess(df):
         # Retrieve tweet for a particular row
         tweet = row['content']
 
-        # Stemming
+        # lower-caps
+        tweet.lower()
+
+        # Stemming (not sure if necessary or not)
         #porter_stemmer.stem(tweet)
 
-        # abbrevation replaced by actual meaning
+        # TO-DO: abbrevation/emoticons replaced by actual meaning
 
+        # TO-DO: Hashtag
+
+        # TO-DO: RT/@/URL
 
         # Tokenise
         df = tokenise(df, tweet)
@@ -31,9 +37,13 @@ def tokenise(df, tweet):
     # remove stopwords
     words = [w for w in words if not w in stopwords.words('english')]
 
+    # TO-DO: Negation?
+
     # Unigram (create column if word exist)
     for each_word in words:
         df.loc[index, each_word] = 1
+
+    # TO-DO: Bigram
 
     return df
 
