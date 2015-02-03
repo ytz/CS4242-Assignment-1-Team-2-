@@ -7,6 +7,7 @@ import re
 
 
 def preprocess(df):
+    df.fillna("",inplace=True)
     porter_stemmer = PorterStemmer()
 
     # Iterate tweets
@@ -14,31 +15,38 @@ def preprocess(df):
         # Retrieve tweet for a particular row
         tweet = row['content']
 
-        # lower-caps
-        tweet.lower()
+        
 
         # Stemming (not sure if necessary or not)
-        #porter_stemmer.stem(tweet)
+        porter_stemmer.stem(tweet)
 
         # TO-DO: abbrevation/emoticons replaced by actual meaning
 
         # TO-DO: Hashtag
 
         # TO-DO: RT/@/URL
-        tweet.replace("RT", "")
+        tweet = re.sub("RT", "", tweet)
         # http://stackoverflow.com/questions/2304632/regex-for-twitter-username
         tweet = re.sub('(?<=^|(?<=[^a-zA-Z0-9-\.]))@([A-Za-z_]+[A-Za-z0-9_]+)', "", tweet)
         tweet = re.sub('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', "url", tweet)
+        tweet = re.sub("['\":,]", "", tweet)
+        
+        # lower-caps
+        tweet = tweet.lower()
 
         # POS tag
 
         # Tokenise
-        df = tokenise(df, tweet)
+        df = tokenise(df, tweet, index)
+
+
 
     # remove 'content' column
-    df = df.drop('content',1)
+    #df = df.drop('content',1)
 
-def tokenise(df, tweet):
+    return df
+
+def tokenise(df, tweet, index):
     # Tokenise string (tweet)
     words = nltk.word_tokenize(tweet)  
     # remove stopwords
@@ -48,7 +56,11 @@ def tokenise(df, tweet):
 
     # Unigram (create column if word exist)
     for each_word in words:
-        df.loc[index, each_word] = 1
+        try:
+            df.loc[index, each_word] = 1 # replace cell value with 1 (presence)
+        except KeyError:
+            df[each_word] = 0            # create column first
+            df.loc[index, each_word] = 1 # replace cell value with 1 (presence)
 
     # TO-DO: Bigram
 
@@ -58,7 +70,7 @@ def tokenise(df, tweet):
 def main():
     df_train = pd.read_csv('fix_train.csv')
     df_train = preprocess(df_train)
-    df_train.to_csv("preprocess_train.csv", index=False, na_rep="0")
+    df_train.to_csv("preprocess_train.csv", na_rep="0",index=False)
 
 
 
