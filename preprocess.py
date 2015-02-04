@@ -42,7 +42,7 @@ def preprocess(df):
 
 
     # remove 'content' column
-    #df = df.drop('content',1)
+    df = df.drop('content',1)
 
     return df
 
@@ -66,11 +66,16 @@ def tokenise(df, tweet, index):
 
     return df
 
+def copy_features(df_train, df_curr):
+    list(df_train.columns.values)
+
 
 def main():
     df_train = pd.read_csv('fix_train.csv')
     df_train = preprocess(df_train)
     df_train.to_csv("preprocess_train.csv", na_rep="0",index=False)
+
+    # Tokenise 'Dev' and 'Test' using exact features from 'Train'
 
 
 
