@@ -76,7 +76,7 @@ def tokenise(df, tweet, index, copy):
 
 def copy_features(df_train, df_curr):
     column_list = list(df_train.columns.values)
-    for x in range(7, len(df_train.columns)):
+    for x in range(6, len(df_train.columns)):
         df_curr[column_list[x]] = 0
     df_curr = preprocess(df_curr, copy=True)
 
