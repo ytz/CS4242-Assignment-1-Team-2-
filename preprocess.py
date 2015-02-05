@@ -6,7 +6,7 @@ import pandas as pd
 import re
 
 
-def preprocess(df):
+def preprocess(df, copy=False):
     df.fillna("",inplace=True)
     porter_stemmer = PorterStemmer()
 
@@ -37,7 +37,7 @@ def preprocess(df):
         # POS tag
 
         # Tokenise
-        df = tokenise(df, tweet, index)
+        df = tokenise(df, tweet, index, copy)
 
 
 
@@ -46,7 +46,7 @@ def preprocess(df):
 
     return df
 
-def tokenise(df, tweet, index):
+def tokenise(df, tweet, index, copy):
     # Tokenise string (tweet)
     words = nltk.word_tokenize(tweet)  
     # remove stopwords
@@ -55,19 +55,32 @@ def tokenise(df, tweet, index):
     # TO-DO: Negation?
 
     # Unigram (create column if word exist)
-    for each_word in words:
-        try:
-            df.loc[index, each_word] = 1 # replace cell value with 1 (presence)
-        except KeyError:
-            df[each_word] = 0            # create column first
-            df.loc[index, each_word] = 1 # replace cell value with 1 (presence)
+    if (copy == False):
+        for each_word in words:
+            try:
+                df.loc[index, each_word] = 1 # replace cell value with 1 (presence)
+            except KeyError:
+                df[each_word] = 0            # create column first
+                df.loc[index, each_word] = 1 # replace cell value with 1 (presence)
 
-    # TO-DO: Bigram
+
+        # TO-DO: Bigram
+
+    # Copy == True (for DEV and TEST)
+    else:
+        for each_word in words:
+            if each_word in df.columns:
+                df.loc[index, each_word] = 1
 
     return df
 
 def copy_features(df_train, df_curr):
-    list(df_train.columns.values)
+    column_list = list(df_train.columns.values)
+    for x in range(7, len(df_train.columns)):
+        df_curr[column_list[x]] = 0
+    df_curr = preprocess(df_curr, copy=True)
+
+    return df_curr
 
 
 def main():
@@ -76,7 +89,13 @@ def main():
     df_train.to_csv("preprocess_train.csv", na_rep="0",index=False)
 
     # Tokenise 'Dev' and 'Test' using exact features from 'Train'
+    df_dev = pd.read_csv('fix_dev.csv')
+    df_dev = copy_features(df_train, df_dev)
+    df_dev.to_csv("preprocess_dev.csv", na_rep="0",index=False)
 
+    df_test = pd.read_csv('fix_test.csv')
+    df_test = copy_features(df_train, df_test)
+    df_test.to_csv("preprocess_test.csv", na_rep="0",index=False)
 
 
 main()
