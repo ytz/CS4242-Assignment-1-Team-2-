@@ -14,9 +14,9 @@ def main():
     """
     *~* SET FILE NAMES HERE *~*
     """
-    train_file = "edit_train.csv"
-    dev_file = "edit_dev.csv"
-    model_file = "RandomForest.pickle"
+    train_file = "preprocess_train.csv"
+    dev_file = "preprocess_dev.csv"
+    model_file = "LSVC.pickle"
 
     # Read training csv data
     train = pd.read_csv(train_file)
@@ -31,9 +31,9 @@ def main():
     """
     *~* Pick your classifier here *~*
     """
-    #classifier = LinearSVC() # SVM
+    classifier = LinearSVC() # SVM
     #classifier = GaussianNB() # Naive Bayes
-    classifier = KNeighborsClassifier(n_neighbors=3) # KNN
+    #classifier = KNeighborsClassifier(n_neighbors=3) # KNN
 
     # Cross-Validation
     mean_accuracy = 0.0
@@ -69,7 +69,7 @@ def main():
     print("Saving the classifier")
     pickle.dump(classifier, open(model_file, "w"))
 
-    """
+    
     # Result for dev file
     dev = pd.read_csv(dev_file)
     target_dev, features_dev = helper.format_dataframe(dev)
@@ -78,13 +78,13 @@ def main():
     # Evaluation Metrics
     print "==============="
     print " DEV FILE"
-    accuracy = metrics.accuracy_score(correct_values, predictions_dev)
-    recall = metrics.recall_score(correct_values, predictions_dev)
-    f1 = metrics.f1_score(correct_values, predictions_dev)
+    accuracy = metrics.accuracy_score(target_dev, predictions_dev)
+    recall = metrics.recall_score(target_dev, predictions_dev)
+    f1 = metrics.f1_score(target_dev, predictions_dev)
     print "Accuracy: %f" % accuracy
     print "Recall: %f" % recall
     print "F1: %f" % f1
-    """
+    
 
 
 main()

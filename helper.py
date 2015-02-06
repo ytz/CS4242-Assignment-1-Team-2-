@@ -34,11 +34,12 @@ def format_dataframe(dataframe):
 	del dataframe["tweet id"]
 	del dataframe["username"]
 	del dataframe["annotator id"]
+	del dataframe["target"]
 
 	# change 'sentiment' to category type instead of string
-	dataframe["sentiment"] = dataframe["sentiment"].astype('category') 
+	#dataframe["sentiment"] = dataframe["sentiment"].astype('category') 
 	# One-hot encoding 'target'
-	dataframe, _= one_hot_dataframe(dataframe, ['target'], replace=True)
+	#dataframe, _= one_hot_dataframe(dataframe, ['target'], replace=True)
 	target = dataframe["sentiment"]
 	del dataframe["sentiment"]
 	features = dataframe.as_matrix()
