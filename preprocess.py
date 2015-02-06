@@ -4,6 +4,7 @@ from nltk.stem.wordnet import WordNetLemmatizer
 from nltk.corpus import stopwords
 import pandas as pd
 import re
+from nltk.util import ngrams
 
 
 def preprocess(df, copy=False):
@@ -52,6 +53,9 @@ def tokenise(df, tweet, index, copy):
     # remove stopwords
     words = [w for w in words if not w in stopwords.words('english')]
 
+    # tweet without stopwords
+    tweet_nostop = ' '.join(words)
+
     # TO-DO: Negation?
 
     # Unigram (create column if word exist)
@@ -65,12 +69,24 @@ def tokenise(df, tweet, index, copy):
 
 
         # TO-DO: Bigram
+        bigrams = ngrams(tweet_nostop.split(), 2)
+        for grams in bigrams:
+            try:
+                df.loc[index, grams[0] + ' ' + grams[1]] = 1 # replace cell value with 1 (presence)
+            except KeyError:
+                df[grams] = 0            # create column first
+                df.loc[index, grams[0] + ' ' + grams[1]] = 1 # replace cell value with 1 (presence)
 
     # Copy == True (for DEV and TEST)
     else:
         for each_word in words:
             if each_word in df.columns:
                 df.loc[index, each_word] = 1
+
+        bigrams = ngrams(tweet_nostop.split(), 2)
+        for grams in bigrams:
+            if grams in df.columns:
+                df.loc[index, grams[0] + ' ' + grams[1]] = 1
 
     return df
 
