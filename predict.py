@@ -1,10 +1,11 @@
 import pandas as pd
 import pickle
 import helper
+from sklearn import metrics
 
 # Set file names
-test_file = "edit_test.csv"
-model_file = "RandomForest.pickle"
+test_file = "preprocess_test.csv"
+model_file = "LSVC.pickle"
 
 # Read test data
 print("Reading test data")
@@ -24,9 +25,9 @@ print("Making predictions")
 predictions = classifier.predict(features)
 
 # Evaluation Metrics
-accuracy = metrics.accuracy_score(correct_values, predictions)
-recall = metrics.recall_score(correct_values, predictions)
-f1 = metrics.f1_score(correct_values, predictions)
+accuracy = metrics.accuracy_score(target, predictions)
+recall = metrics.recall_score(target, predictions)
+f1 = metrics.f1_score(target, predictions)
 print "Accuracy: %f" % accuracy
 print "Recall: %f" % recall
 print "F1: %f" % f1
