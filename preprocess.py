@@ -1,3 +1,4 @@
+import helper
 import nltk
 from nltk.stem.porter import PorterStemmer
 from nltk.stem.wordnet import WordNetLemmatizer
@@ -7,12 +8,15 @@ import re
 from nltk.util import ngrams
 
 
+
 def preprocess(df, copy=False):
     df.fillna("",inplace=True)
     porter_stemmer = PorterStemmer()
 
     # Iterate tweets
     for index, row in df.iterrows():
+        print str(index+1) + '/' + str(len(df.index))
+
         # Retrieve tweet for a particular row
         tweet = row['content']
 
@@ -101,19 +105,21 @@ def tokenise(df, tweet, index, copy):
 
 def sentimentLexicon(df, words, index):
     # Create Pickle Files
-    file_to_array_pickle("positive.txt", "positive")
-    file_to_array_pickle("negative.txt", "negative")
+    """
+    helper.file_to_array_pickle("positive.txt", "positive")
+    helper.file_to_array_pickle("negative.txt", "negative")
+    """
 
-    positive_list = open_array_pickle("positive.p")
-    negative_list = open_array_pickle("negative.p")
+    positive_list = helper.open_array_pickle("positive.p")
+    negative_list = helper.open_array_pickle("negative.p")
 
     positive_score = 0
     negative_score = 0
 
     for each_word in words:
-        if (each_word in positive_list)
+        if (each_word in positive_list):
             positive_score += 1
-        if (each_word in negative_list)
+        if (each_word in negative_list):
             negative_score += 1
 
     # Enter Positive Score to Dataframe

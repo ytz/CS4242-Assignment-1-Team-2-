@@ -51,7 +51,7 @@ def file_to_array_pickle(file_location, pickle_name):
 	""" Read a text file and convert into array.
 		Convert this array into a pickle file.
 	""" 
-	f = open(filepath, 'r')
+	f = open(file_location, 'r')
 	array = []
 	for line in f:
 		array.append(line.strip())
