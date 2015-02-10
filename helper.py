@@ -1,5 +1,6 @@
 from sklearn import feature_extraction
 import pandas as pd
+import pickle
 
 def one_hot_dataframe(data, cols, replace=False):
     """ Takes a dataframe and a list of columns that need to be encoded.
@@ -45,3 +46,18 @@ def format_dataframe(dataframe):
 	features = dataframe.as_matrix()
 
 	return target, features
+
+def file_to_array_pickle(file_location, pickle_name):
+	""" Read a text file and convert into array.
+		Convert this array into a pickle file.
+	""" 
+	f = open(filepath, 'r')
+	array = []
+	for line in f:
+		array.append(line.strip())
+
+	# Save array into a pickle file
+	pickle.dump(array, open(pickle_name+".p", "wb"))
+
+def open_array_pickle(pickle_location):
+	return pickle.load(open(pickle_location,"rb"))

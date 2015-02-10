@@ -16,24 +16,31 @@ def preprocess(df, copy=False):
         # Retrieve tweet for a particular row
         tweet = row['content']
 
+        # Stats Collection
+        df = collectStats(df, tweet, index)
+
+        # lower-caps
+        tweet = tweet.lower()
+
+        
+        
         
 
         # Stemming (not sure if necessary or not)
-        porter_stemmer.stem(tweet)
+        #porter_stemmer.stem(tweet)
 
         # TO-DO: abbrevation/emoticons replaced by actual meaning
 
         # TO-DO: Hashtag
 
         # TO-DO: RT/@/URL
-        tweet = re.sub("RT", "", tweet)
+        tweet = re.sub("rt", "", tweet)
         # http://stackoverflow.com/questions/2304632/regex-for-twitter-username
         tweet = re.sub('(?<=^|(?<=[^a-zA-Z0-9-\.]))@([A-Za-z_]+[A-Za-z0-9_]+)', "", tweet)
         tweet = re.sub('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', "url", tweet)
         tweet = re.sub("['\":,]", "", tweet)
         
-        # lower-caps
-        tweet = tweet.lower()
+        
 
         # POS tag
 
@@ -50,6 +57,8 @@ def preprocess(df, copy=False):
 def tokenise(df, tweet, index, copy):
     # Tokenise string (tweet)
     words = nltk.word_tokenize(tweet)  
+    # Sentiment Analysis
+    df = sentimentLexicon(df, words, index)    
     # remove stopwords
     words = [w for w in words if not w in stopwords.words('english')]
 
@@ -89,6 +98,61 @@ def tokenise(df, tweet, index, copy):
                 df.loc[index, grams[0] + ' ' + grams[1]] = 1
 
     return df
+
+def sentimentLexicon(df, words, index):
+    # Create Pickle Files
+    file_to_array_pickle("positive.txt", "positive")
+    file_to_array_pickle("negative.txt", "negative")
+
+    positive_list = open_array_pickle("positive.p")
+    negative_list = open_array_pickle("negative.p")
+
+    positive_score = 0
+    negative_score = 0
+
+    for each_word in words:
+        if (each_word in positive_list)
+            positive_score += 1
+        if (each_word in negative_list)
+            negative_score += 1
+
+    # Enter Positive Score to Dataframe
+    try:
+        df.loc[index, "no_of_positve_word"] = positive_score
+    except KeyError:
+        df["no_of_positve_word"] = 0            # create column first
+        df.loc[index, "no_of_positve_word"] = positive_score # replace cell value
+
+    # Enter Negative Score to Dataframe
+    try:
+        df.loc[index, "no_of_negative_word"] = negative_score
+    except KeyError:
+        df["no_of_negative_word"] = 0            # create column first
+        df.loc[index, "no_of_negative_word"] = negative_score # replace cell value 
+
+    return df 
+
+def collectStats(df, tweet, index):
+    # Number of capital letters
+    no_of_capital = sum(1 for c in tweet if c.isupper())
+
+    try:
+        df.loc[index, "no_of_capital_letters"] = no_of_capital
+    except KeyError:
+        df["no_of_capital_letters"] = 0            # create column first
+        df.loc[index, "no_of_capital_letters"] = no_of_capital # replace cell value
+
+    # Number of '!' & '?'
+    no_of_exclam = tweet.count('!') + tweet.count('?')
+
+    try:
+        df.loc[index, "no_of_exclaim"] = no_of_exclam
+    except KeyError:
+        df["no_of_exclaim"] = 0            # create column first
+        df.loc[index, "no_of_exclaim"] = no_of_exclam # replace cell value
+
+    return df
+
 
 def copy_features(df_train, df_curr):
     column_list = list(df_train.columns.values)
