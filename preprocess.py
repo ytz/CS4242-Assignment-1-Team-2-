@@ -35,7 +35,8 @@ def preprocess(df, copy=False):
 
         # TO-DO: abbrevation/emoticons replaced by actual meaning
 
-        # TO-DO: Hashtag
+        # Hashtag
+        tweet = re.sub("[#]", "HASHTAG", tweet)
 
         # TO-DO: RT/@/URL
         tweet = re.sub("rt", "", tweet)

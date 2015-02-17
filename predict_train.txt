@@ -22,11 +22,11 @@ irrelevant
 negative
 negative
 negative
+neutral
 negative
 negative
 negative
-negative
-negative
+neutral
 negative
 neutral
 neutral
@@ -192,14 +192,14 @@ negative
 negative
 negative
 neutral
-negative
+positive
 positive
 negative
 negative
 negative
 negative
 negative
-neutral
+negative
 negative
 neutral
 neutral
@@ -513,7 +513,7 @@ neutral
 positive
 positive
 positive
-neutral
+negative
 positive
 irrelevant
 negative
@@ -640,7 +640,7 @@ negative
 negative
 negative
 positive
-negative
+neutral
 neutral
 negative
 negative
@@ -649,7 +649,7 @@ negative
 neutral
 negative
 negative
-neutral
+negative
 positive
 negative
 negative
@@ -721,7 +721,7 @@ positive
 positive
 positive
 negative
-negative
+neutral
 negative
 positive
 neutral
@@ -735,7 +735,7 @@ negative
 negative
 negative
 neutral
-neutral
+negative
 neutral
 positive
 positive
@@ -752,10 +752,10 @@ negative
 negative
 negative
 positive
-negative
+neutral
 neutral
 positive
-negative
+neutral
 positive
 positive
 negative
@@ -828,7 +828,7 @@ neutral
 negative
 positive
 positive
-neutral
+negative
 positive
 positive
 irrelevant

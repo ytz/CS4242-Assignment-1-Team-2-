@@ -50,9 +50,9 @@ def main():
         preds = classifier.predict(X_cv)
 
         # Evaluation metrics
-        recall = metrics.recall_score(y_cv, preds)
+        recall = metrics.recall_score(y_cv, preds, average='macro')
         accuracy = metrics.accuracy_score(y_cv, preds)
-        f1 = metrics.f1_score(y_cv, preds)
+        f1 = metrics.f1_score(y_cv, preds, average='macro')
         print "Accuracy (fold %d/%d): %f" % (i + 1, n, accuracy)
         print "Recall (fold %d/%d): %f" % (i + 1, n, recall)
         print "F1 (fold %d/%d): %f" % (i + 1, n, f1)
@@ -85,8 +85,8 @@ def main():
     print "==============="
     print " DEV FILE"
     accuracy = metrics.accuracy_score(target_dev, predictions_dev)
-    recall = metrics.recall_score(target_dev, predictions_dev)
-    f1 = metrics.f1_score(target_dev, predictions_dev)
+    recall = metrics.recall_score(target_dev, predictions_dev, average='macro')
+    f1 = metrics.f1_score(target_dev, predictions_dev, average='macro')
     print "Accuracy: %f" % accuracy
     print "Recall: %f" % recall
     print "F1: %f" % f1

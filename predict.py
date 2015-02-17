@@ -26,8 +26,8 @@ predictions = classifier.predict(features)
 
 # Evaluation Metrics
 accuracy = metrics.accuracy_score(target, predictions)
-recall = metrics.recall_score(target, predictions)
-f1 = metrics.f1_score(target, predictions)
+recall = metrics.recall_score(target, predictions, average='macro')
+f1 = metrics.f1_score(target, predictions, average='macro')
 print "Accuracy: %f" % accuracy
 print "Recall: %f" % recall
 print "F1: %f" % f1

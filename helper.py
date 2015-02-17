@@ -59,5 +59,7 @@ def file_to_array_pickle(file_location, pickle_name):
 	# Save array into a pickle file
 	pickle.dump(array, open(pickle_name+".p", "wb"))
 
+	f.close()
+
 def open_array_pickle(pickle_location):
 	return pickle.load(open(pickle_location,"rb"))
