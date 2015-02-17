@@ -1,6 +1,7 @@
 from __future__ import division
 
 import pandas as pd
+import numpy as np
 import pickle
 import helper
 from sklearn.ensemble import RandomForestClassifier
@@ -64,6 +65,10 @@ def main():
     print "Mean Recall: %f" % (mean_recall/n)
     print "Mean F1: %f" % (mean_f1/n)
 
+    # Output prediction result for training data
+    predictions_train = classifier.predict(features)
+    np.savetxt('predict_train.txt',predictions_train,fmt="%s")
+
 
     # Save CLassifier as pickle file
     print("Saving the classifier")
@@ -74,6 +79,7 @@ def main():
     dev = pd.read_csv(dev_file)
     target_dev, features_dev = helper.format_dataframe(dev)
     predictions_dev = classifier.predict(features_dev)
+    np.savetxt('predict_dev.txt',predictions_dev,fmt="%s")
 
     # Evaluation Metrics
     print "==============="
