@@ -13,6 +13,11 @@ def cleanData(input_name, output_name):
     df['sentiment'] = df['sentiment'].map(str.strip)
     df['target'] = df['target'].map(str.strip)
 
+    # Remove sentiment that are not 'positive','negative','neutral'
+    df = df[(df.sentiment == 'positive') | 
+            (df.sentiment == 'negative') |
+            (df.sentiment == 'neutral' )]
+
     # output edited csv
     df.to_csv(output_name, na_rep="0", index=False)
 

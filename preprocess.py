@@ -1,3 +1,4 @@
+from __future__ import division
 import helper
 import nltk
 from nltk.stem.porter import PorterStemmer
@@ -6,7 +7,7 @@ from nltk.corpus import stopwords
 import pandas as pd
 import re
 from nltk.util import ngrams
-
+import itertools
 
 
 def preprocess(df, copy=False):
@@ -26,7 +27,8 @@ def preprocess(df, copy=False):
         # lower-caps
         tweet = tweet.lower()
 
-        
+
+
         
         
 
@@ -43,7 +45,7 @@ def preprocess(df, copy=False):
         # http://stackoverflow.com/questions/2304632/regex-for-twitter-username
         tweet = re.sub('(?<=^|(?<=[^a-zA-Z0-9-\.]))@([A-Za-z_]+[A-Za-z0-9_]+)', "", tweet)
         tweet = re.sub('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', "url", tweet)
-        tweet = re.sub("['\":,]", "", tweet)
+        tweet = re.sub("['\":,.]", "", tweet)
         
         
 
@@ -66,6 +68,9 @@ def tokenise(df, tweet, index, copy):
     df = sentimentLexicon(df, words, index)    
     # remove stopwords
     words = [w for w in words if not w in stopwords.words('english')]
+    # remove duplicate char from word (eg. SSYYNNOOPPSSIISS)
+    for idx,each_word in enumerate(words):
+        ''.join(ch for ch, _ in itertools.groupby(words[idx]))
 
     # tweet without stopwords
     tweet_nostop = ' '.join(words)
@@ -142,6 +147,8 @@ def sentimentLexicon(df, words, index):
 def collectStats(df, tweet, index):
     # Number of capital letters
     no_of_capital = sum(1 for c in tweet if c.isupper())
+    # Normalise
+    no_of_capital = no_of_capital/25
 
     try:
         df.loc[index, "no_of_capital_letters"] = no_of_capital
@@ -151,6 +158,8 @@ def collectStats(df, tweet, index):
 
     # Number of '!' & '?'
     no_of_exclam = tweet.count('!') + tweet.count('?')
+    # Normalise
+    no_of_exclam = no_of_exclam/2
 
     try:
         df.loc[index, "no_of_exclaim"] = no_of_exclam
