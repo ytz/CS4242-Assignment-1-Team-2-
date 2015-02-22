@@ -45,7 +45,7 @@ def preprocess(df, copy=False):
         # http://stackoverflow.com/questions/2304632/regex-for-twitter-username
         tweet = re.sub('(?<=^|(?<=[^a-zA-Z0-9-\.]))@([A-Za-z_]+[A-Za-z0-9_]+)', "", tweet)
         tweet = re.sub('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', "url", tweet)
-        tweet = re.sub("['\":,.]", "", tweet)
+        tweet = re.sub("['\":,.!?;&-=|@()/]", "", tweet)
         
         
 
@@ -67,7 +67,7 @@ def tokenise(df, tweet, index, copy):
     # Sentiment Analysis
     df = sentimentLexicon(df, words, index)    
     # remove stopwords
-    words = [w for w in words if not w in stopwords.words('english')]
+    #words = [w for w in words if not w in stopwords.words('english')]
     # remove duplicate char from word (eg. SSYYNNOOPPSSIISS)
     for idx,each_word in enumerate(words):
         ''.join(ch for ch, _ in itertools.groupby(words[idx]))
@@ -142,6 +142,30 @@ def sentimentLexicon(df, words, index):
         df["no_of_negative_word"] = 0            # create column first
         df.loc[index, "no_of_negative_word"] = negative_score # replace cell value 
 
+    # Enter Positive Freq to Dataframe
+    positive_freq = helper.getPositiveFreq(words)
+    try:
+        df.loc[index, "positive_freq"] = positive_freq
+    except KeyError:
+        df["positive_freq"] = 0            # create column first
+        df.loc[index, "positive_freq"] = positive_freq # replace cell value 
+
+    # Enter Positive Freq to Dataframe
+    negative_freq = helper.getNegativeFreq(words)
+    try:
+        df.loc[index, "negative_freq"] = negative_freq
+    except KeyError:
+        df["negative_freq"] = 0            # create column first
+        df.loc[index, "negative_freq"] = negative_freq # replace cell value 
+
+    # Enter Positive Freq to Dataframe
+    neutral_freq = helper.getNeutralFreq(words)
+    try:
+        df.loc[index, "neutral_freq"] = neutral_freq
+    except KeyError:
+        df["neutral_freq"] = 0            # create column first
+        df.loc[index, "neutral_freq"] = neutral_freq # replace cell value 
+    
     return df 
 
 def collectStats(df, tweet, index):
@@ -166,6 +190,17 @@ def collectStats(df, tweet, index):
     except KeyError:
         df["no_of_exclaim"] = 0            # create column first
         df.loc[index, "no_of_exclaim"] = no_of_exclam # replace cell value
+
+    # Number of '#'
+    no_of_hashtag = tweet.count('#')
+    # Normalise
+    no_of_hashtag = no_of_hashtag/2
+
+    try:
+        df.loc[index, "no_of_hashtag"] = no_of_hashtag
+    except KeyError:
+        df["no_of_exclaim"] = 0            # create column first
+        df.loc[index, "no_of_hashtag"] = no_of_hashtag # replace cell value
 
     return df
 

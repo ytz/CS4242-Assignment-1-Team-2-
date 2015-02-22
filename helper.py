@@ -63,3 +63,27 @@ def file_to_array_pickle(file_location, pickle_name):
 
 def open_array_pickle(pickle_location):
 	return pickle.load(open(pickle_location,"rb"))
+
+def getPositiveFreq(words):
+	list = ['tell','publicoption','support','pass','call','topprog']
+	score = 0
+	for each_word in words:
+	    if (each_word in list):
+	        score += 1
+   	return score
+
+def getNegativeFreq(words):
+	list = ['gop','sgp','teaparty','tlot','obamacare','don\'t', 'ocra']
+	score = 0
+	for each_word in words:
+	    if (each_word in list):
+	        score += 1
+   	return score
+
+def getNeutralFreq(words):
+	list = ['house','rep','$','dc']
+	score = 0
+	for each_word in words:
+	    if (each_word in list):
+	        score += 1
+   	return score
