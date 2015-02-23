@@ -1,4 +1,5 @@
 import pandas as pd
+import twitter_data
 
 # Removes weird spacing in 'sentiment' and
 # 'target' columns
@@ -18,8 +19,13 @@ def cleanData(input_name, output_name):
             (df.sentiment == 'negative') |
             (df.sentiment == 'neutral' )]
 
+    # Retrieve User Bio
+    api = twitter_data.getAPI()
+    for index, row in df.iterrows():
+        df = twitter_data.inputUserBio(df, api, row['user id'], index)
+
     # output edited csv
-    df.to_csv(output_name, na_rep="0", index=False)
+    df.to_csv(output_name, na_rep="0", index=False, encoding='utf-8')
 
 def main():
     # Train
@@ -34,8 +40,11 @@ def main():
     test_in_name = "test.csv"
     test_out_name = "fix_test.csv"
 
+    print 'train'
     cleanData(train_in_name, train_out_name)
+    print 'dev'
     cleanData(dev_in_name, dev_out_name)
+    print 'test'
     cleanData(test_in_name, test_out_name)
 
 main()

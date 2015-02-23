@@ -21,7 +21,7 @@ positive
 negative
 negative
 negative
-negative
+neutral
 negative
 negative
 negative
@@ -789,7 +789,7 @@ neutral
 neutral
 negative
 positive
-negative
+neutral
 positive
 negative
 neutral

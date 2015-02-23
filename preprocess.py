@@ -8,18 +8,27 @@ import pandas as pd
 import re
 from nltk.util import ngrams
 import itertools
+import twitter_data
 
 
 def preprocess(df, copy=False):
     df.fillna("",inplace=True)
     porter_stemmer = PorterStemmer()
+    #api = twitter_data.getAPI()
 
     # Iterate tweets
     for index, row in df.iterrows():
         print str(index+1) + '/' + str(len(df.index))
 
+        # Retrieve user bio
+        #df = twitter_data.inputUserBio(df, api, row['user id'], index)
+
         # Retrieve tweet for a particular row
         tweet = row['content']
+
+        # Enter Conservative Boolean to Dataframe
+        user_bio = row['user_bio']
+        df = userBio(df, user_bio,porter_stemmer,index)
 
         # Stats Collection
         df = collectStats(df, tweet, index)
@@ -27,10 +36,6 @@ def preprocess(df, copy=False):
         # lower-caps
         tweet = tweet.lower()
 
-
-
-        
-        
 
         # Stemming (not sure if necessary or not)
         #porter_stemmer.stem(tweet)
@@ -40,15 +45,13 @@ def preprocess(df, copy=False):
         # Hashtag
         tweet = re.sub("[#]", "HASHTAG", tweet)
 
-        # TO-DO: RT/@/URL
+        # RT/@/URL
         tweet = re.sub("rt", "", tweet)
         # http://stackoverflow.com/questions/2304632/regex-for-twitter-username
         tweet = re.sub('(?<=^|(?<=[^a-zA-Z0-9-\.]))@([A-Za-z_]+[A-Za-z0-9_]+)', "", tweet)
         tweet = re.sub('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', "url", tweet)
         tweet = re.sub("['\":,.!?;&-=|@()/]", "", tweet)
         
-        
-
         # POS tag
 
         # Tokenise
@@ -58,8 +61,32 @@ def preprocess(df, copy=False):
 
     # remove 'content' column
     df = df.drop('content',1)
+    # remove 'user_bio' column
+    df = df.drop('user_bio',1)
 
     return df
+
+def userBio(df, user_bio,porter_stemmer,index):
+    user_bio = str(user_bio)
+    user_bio = porter_stemmer.stem(user_bio)
+    # lower-caps
+    user_bio = user_bio.lower()
+    user_bio = re.sub('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', "url", user_bio)
+    user_bio = re.sub('(?<=^|(?<=[^a-zA-Z0-9-\.]))@([A-Za-z_]+[A-Za-z0-9_]+)', "", user_bio)
+    user_bio = re.sub("['\":,.!?;&-=|@()/#]", "", user_bio)
+    words = nltk.word_tokenize(user_bio) 
+    words = [w for w in words if not w in stopwords.words('english')]
+
+    # Enter Conservative Boolean to Dataframe
+    con_boolean = helper.getConservativeBoolean(words)
+    try:
+        df.loc[index, "con_boolean"] = con_boolean
+    except KeyError:
+        df["con_boolean"] = 0            # create column first
+        df.loc[index, "con_boolean"] = con_boolean # replace cell value 
+
+    return df
+    
 
 def tokenise(df, tweet, index, copy):
     # Tokenise string (tweet)
@@ -142,6 +169,7 @@ def sentimentLexicon(df, words, index):
         df["no_of_negative_word"] = 0            # create column first
         df.loc[index, "no_of_negative_word"] = negative_score # replace cell value 
 
+    
     # Enter Positive Freq to Dataframe
     positive_freq = helper.getPositiveFreq(words)
     try:
@@ -149,16 +177,16 @@ def sentimentLexicon(df, words, index):
     except KeyError:
         df["positive_freq"] = 0            # create column first
         df.loc[index, "positive_freq"] = positive_freq # replace cell value 
-
-    # Enter Positive Freq to Dataframe
+    
+    # Enter Negative Freq to Dataframe
     negative_freq = helper.getNegativeFreq(words)
     try:
         df.loc[index, "negative_freq"] = negative_freq
     except KeyError:
         df["negative_freq"] = 0            # create column first
         df.loc[index, "negative_freq"] = negative_freq # replace cell value 
-
-    # Enter Positive Freq to Dataframe
+    
+    # Enter Neutral Freq to Dataframe
     neutral_freq = helper.getNeutralFreq(words)
     try:
         df.loc[index, "neutral_freq"] = neutral_freq
@@ -166,6 +194,8 @@ def sentimentLexicon(df, words, index):
         df["neutral_freq"] = 0            # create column first
         df.loc[index, "neutral_freq"] = neutral_freq # replace cell value 
     
+    
+
     return df 
 
 def collectStats(df, tweet, index):
@@ -217,16 +247,16 @@ def copy_features(df_train, df_curr):
 def main():
     df_train = pd.read_csv('fix_train.csv')
     df_train = preprocess(df_train)
-    df_train.to_csv("preprocess_train.csv", na_rep="0",index=False)
+    df_train.to_csv("preprocess_train.csv", na_rep="0",index=False,encoding='utf-8')
 
     # Tokenise 'Dev' and 'Test' using exact features from 'Train'
     df_dev = pd.read_csv('fix_dev.csv')
     df_dev = copy_features(df_train, df_dev)
-    df_dev.to_csv("preprocess_dev.csv", na_rep="0",index=False)
+    df_dev.to_csv("preprocess_dev.csv", na_rep="0",index=False,encoding='utf-8')
 
     df_test = pd.read_csv('fix_test.csv')
     df_test = copy_features(df_train, df_test)
-    df_test.to_csv("preprocess_test.csv", na_rep="0",index=False)
+    df_test.to_csv("preprocess_test.csv", na_rep="0",index=False,encoding='utf-8')
 
 
 main()
