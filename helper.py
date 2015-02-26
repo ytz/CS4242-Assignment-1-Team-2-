@@ -90,7 +90,7 @@ def getNeutralFreq(words):
 
 def getConservativeBoolean(words):
 	list = ['conservative','conservatarian','republican',
-			'patriot','american','teaparty'j,'tea']
+			'patriot','american','teaparty','tea']
 	for each_word in words:
 	    if (each_word in list):
 	        return 1

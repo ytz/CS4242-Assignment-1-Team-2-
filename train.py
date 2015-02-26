@@ -92,9 +92,11 @@ def main():
     print "==============="
     print " DEV FILE"
     accuracy = metrics.accuracy_score(target_dev, predictions_dev)
+    precision = metrics.precision_score(target_dev, predictions_dev, average='macro')
     recall = metrics.recall_score(target_dev, predictions_dev, average='macro')
     f1 = metrics.f1_score(target_dev, predictions_dev, average='macro')
     print "Accuracy: %f" % accuracy
+    print "Precision: %f" % precision
     print "Recall: %f" % recall
     print "F1: %f" % f1
     
