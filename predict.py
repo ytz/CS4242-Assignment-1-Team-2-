@@ -2,6 +2,8 @@ import pandas as pd
 import pickle
 import helper
 from sklearn import metrics
+from sklearn.feature_extraction.text import TfidfTransformer
+
 
 # Set file names
 test_file = "preprocess_test.csv"
@@ -22,6 +24,9 @@ classifier = pickle.load(open(model_file))
 
 # Make prediction
 print("Making predictions")
+
+transformer = TfidfTransformer()
+features = transformer.fit_transform(features)
 predictions = classifier.predict(features)
 
 # Evaluation Metrics

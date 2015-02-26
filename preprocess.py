@@ -37,8 +37,7 @@ def preprocess(df, copy=False):
         tweet = tweet.lower()
 
 
-        # Stemming (not sure if necessary or not)
-        #porter_stemmer.stem(tweet)
+        
 
         # TO-DO: abbrevation/emoticons replaced by actual meaning
 
@@ -51,6 +50,9 @@ def preprocess(df, copy=False):
         tweet = re.sub('(?<=^|(?<=[^a-zA-Z0-9-\.]))@([A-Za-z_]+[A-Za-z0-9_]+)', "", tweet)
         tweet = re.sub('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', "url", tweet)
         tweet = re.sub("['\":,.!?;&-=|@()/]", "", tweet)
+
+        # Stemming (not sure if necessary or not)
+        #tweet = porter_stemmer.stem(tweet)
         
         # POS tag
 
@@ -68,12 +70,16 @@ def preprocess(df, copy=False):
 
 def userBio(df, user_bio,porter_stemmer,index):
     user_bio = str(user_bio)
-    user_bio = porter_stemmer.stem(user_bio)
+   
     # lower-caps
     user_bio = user_bio.lower()
     user_bio = re.sub('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', "url", user_bio)
     user_bio = re.sub('(?<=^|(?<=[^a-zA-Z0-9-\.]))@([A-Za-z_]+[A-Za-z0-9_]+)', "", user_bio)
     user_bio = re.sub("['\":,.!?;&-=|@()/#]", "", user_bio)
+    user_bio = re.sub(r'[^\x00-\x7F]+',' ', user_bio)
+
+    user_bio = porter_stemmer.stem(user_bio)
+
     words = nltk.word_tokenize(user_bio) 
     words = [w for w in words if not w in stopwords.words('english')]
 
@@ -108,7 +114,10 @@ def tokenise(df, tweet, index, copy):
     if (copy == False):
         for each_word in words:
             try:
-                df.loc[index, each_word] = 1 # replace cell value with 1 (presence)
+                if (isinstance( df.loc[index, each_word], int )):
+                    df.loc[index, each_word] = df.loc[index, each_word] + 1 # replace cell value with 1 (presence), CHECK: Add by 1 works better?
+                else:
+                    df.loc[index, each_word] = 1
             except KeyError:
                 df[each_word] = 0            # create column first
                 df.loc[index, each_word] = 1 # replace cell value with 1 (presence)
@@ -118,7 +127,10 @@ def tokenise(df, tweet, index, copy):
         bigrams = ngrams(tweet_nostop.split(), 2)
         for grams in bigrams:
             try:
-                df.loc[index, grams[0] + ' ' + grams[1]] = 1 # replace cell value with 1 (presence)
+                if (isinstance( df.loc[index, grams[0] + ' ' + grams[1]] , int )):
+                    df.loc[index, grams[0] + ' ' + grams[1]] = df.loc[index, grams[0] + ' ' + grams[1]] + 1 # replace cell value with 1 (presence), CHECK: Add by 1 works better?
+                else:
+                    df.loc[index, grams[0] + ' ' + grams[1]] = 1
             except KeyError:
                 df[grams] = 0            # create column first
                 df.loc[index, grams[0] + ' ' + grams[1]] = 1 # replace cell value with 1 (presence)
@@ -127,21 +139,27 @@ def tokenise(df, tweet, index, copy):
     else:
         for each_word in words:
             if each_word in df.columns:
-                df.loc[index, each_word] = 1
+                if (isinstance( df.loc[index, each_word], int )):
+                    df.loc[index, each_word] = df.loc[index, each_word] + 1 # replace cell value with 1 (presence), CHECK: Add by 1 works better?
+                else:
+                    df.loc[index, each_word] = 1
 
         bigrams = ngrams(tweet_nostop.split(), 2)
         for grams in bigrams:
             if grams in df.columns:
-                df.loc[index, grams[0] + ' ' + grams[1]] = 1
+                if (isinstance( df.loc[index, grams[0] + ' ' + grams[1]] , int )):
+                    df.loc[index, grams[0] + ' ' + grams[1]] = df.loc[index, grams[0] + ' ' + grams[1]] + 1 # replace cell value with 1 (presence), CHECK: Add by 1 works better?
+                else:
+                    df.loc[index, grams[0] + ' ' + grams[1]] = 1
 
     return df
 
 def sentimentLexicon(df, words, index):
     # Create Pickle Files
-    """
+    
     helper.file_to_array_pickle("positive.txt", "positive")
     helper.file_to_array_pickle("negative.txt", "negative")
-    """
+    
 
     positive_list = helper.open_array_pickle("positive.p")
     negative_list = helper.open_array_pickle("negative.p")
@@ -221,7 +239,8 @@ def collectStats(df, tweet, index):
         df["no_of_exclaim"] = 0            # create column first
         df.loc[index, "no_of_exclaim"] = no_of_exclam # replace cell value
 
-    # Number of '#'
+    """
+    # Number of '#', place more emphasis with tweets with more hashtags
     no_of_hashtag = tweet.count('#')
     # Normalise
     no_of_hashtag = no_of_hashtag/2
@@ -231,7 +250,7 @@ def collectStats(df, tweet, index):
     except KeyError:
         df["no_of_exclaim"] = 0            # create column first
         df.loc[index, "no_of_hashtag"] = no_of_hashtag # replace cell value
-
+    """
     return df
 
 
