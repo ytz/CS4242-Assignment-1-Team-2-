@@ -36,6 +36,12 @@ def cleanData(input_name, output_name):
     for index, row in df.iterrows():
         df = twitter_data.inputUserBio(df, api, row['user id'], index)
 
+
+    # Retrieve User Verified
+    for index, row in df.iterrows():
+        df = twitter_data.inputUserVerified(df, api, row['user verified'], index)
+
+
     # output edited csv
     df.to_csv(output_name, na_rep="0", index=False, encoding='utf-8')
 
