@@ -4,6 +4,7 @@ import nltk
 from nltk.stem.porter import PorterStemmer
 from nltk.stem.wordnet import WordNetLemmatizer
 from nltk.corpus import stopwords
+from nltk.tag import pos_tag 
 import pandas as pd
 import re
 from nltk.util import ngrams
@@ -55,7 +56,7 @@ def preprocess(df, copy=False):
         #tweet = porter_stemmer.stem(tweet)
         
         # POS tag
-
+        
         # Tokenise
         df = tokenise(df, tweet, index, copy)
 
@@ -96,17 +97,22 @@ def userBio(df, user_bio,porter_stemmer,index):
 
 def tokenise(df, tweet, index, copy):
     # Tokenise string (tweet)
-    words = nltk.word_tokenize(tweet)  
+    nWords = nltk.word_tokenize(tweet)  
     # Sentiment Analysis
-    df = sentimentLexicon(df, words, index)    
+    df = sentimentLexicon(df, nWords, index)    
     # remove stopwords
     #words = [w for w in words if not w in stopwords.words('english')]
     # remove duplicate char from word (eg. SSYYNNOOPPSSIISS)
-    for idx,each_word in enumerate(words):
-        ''.join(ch for ch, _ in itertools.groupby(words[idx]))
+    for idx,each_word in enumerate(nWords):
+        ''.join(ch for ch, _ in itertools.groupby(nWords[idx]))
 
     # tweet without stopwords
-    tweet_nostop = ' '.join(words)
+    tweet_nostop = ' '.join(nWords)
+    words = []
+    
+    taggedWords = nltk.pos_tag(nWords)      #POS Tagging
+    for each_tag in taggedWords:
+        words.append(each_tag[0] + "/" + each_tag[1])
 
     # TO-DO: Negation?
 
