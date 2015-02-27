@@ -10,8 +10,13 @@ from sklearn import cross_validation
 from sklearn import metrics
 from sklearn.metrics import confusion_matrix
 from sklearn.svm import LinearSVC
+from sklearn.svm import SVC
 from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.feature_selection import SelectPercentile
+from sklearn.feature_selection import chi2
+from sklearn.feature_selection import VarianceThreshold
+from sklearn.ensemble import ExtraTreesClassifier
 
 def main():
     """
@@ -48,7 +53,30 @@ def main():
     n = 10 # no. of fold for validation
     SEED = 42  # always use a seed for randomized procedures
 
+    # Feature Selection
+    # Option 1. Removing features with low variance
+    sel = VarianceThreshold(threshold=(.8 * (1 - .8)))
+    features = sel.fit_transform(features)
+
+    # Option 2. Univariate feature selection
+    features = SelectPercentile(chi2, percentile=10).fit_transform(features, target)
+
+    # Option 3. Tree-based feature selection
+    clf = ExtraTreesClassifier()
+    features = clf.fit(features, target).transform(features)
+
+    # Tune Classifier
+    # Grid Search
+    tuned_parameters = [{'kernel': ['rbf'], 'gamma': [1e-3, 1e-4], 'C': [1, 10, 100, 1000]},
+        {'kernel': ['linear'], 'C': [1, 10, 100, 1000]}]
+    classifier = GridSearchCV( SVC(), tuned_parameters, score_func='f1')
+    print classifier.best_estimator_
+
+    # TRAIN THE CLASSIFIER!!!
     classifier.fit(features, target)
+
+
+    """
     for i in range(n):
     	# for each iteration, randomly hold out 20% of the data as CV set
         X_train, X_cv, y_train, y_cv = cross_validation.train_test_split(
@@ -72,6 +100,7 @@ def main():
     print "Mean Accuracy: %f" % (mean_accuracy/n)
     print "Mean Recall: %f" % (mean_recall/n)
     print "Mean F1: %f" % (mean_f1/n)
+    """
 
     # Output prediction result for training data
     predictions_train = classifier.predict(features)
