@@ -4,6 +4,7 @@ import nltk
 from nltk.stem.porter import PorterStemmer
 from nltk.stem.wordnet import WordNetLemmatizer
 from nltk.corpus import stopwords
+from nltk.corpus import wordnet
 from nltk.tag import pos_tag 
 import pandas as pd
 import re
@@ -102,9 +103,15 @@ def tokenise(df, tweet, index, copy):
     df = sentimentLexicon(df, nWords, index)    
     # remove stopwords
     #words = [w for w in words if not w in stopwords.words('english')]
-    # remove duplicate char from word (eg. SSYYNNOOPPSSIISS)
+   
+    lmtzr = WordNetLemmatizer()
     for idx,each_word in enumerate(nWords):
-        ''.join(ch for ch, _ in itertools.groupby(nWords[idx]))
+        # check if it is an invalid word
+        if not wordnet.synsets(word_to_test):
+            # remove duplicate char from word (eg. SSYYNNOOPPSSIISS)
+            ''.join(ch for ch, _ in itertools.groupby(nWords[idx]))
+        #lemmatize
+        nWords[idx] = lmtzr.lemmatize(each_word)
 
     # tweet without stopwords
     tweet_nostop = ' '.join(nWords)
