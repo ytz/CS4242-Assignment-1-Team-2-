@@ -95,31 +95,50 @@ def userBio(df, user_bio,porter_stemmer,index):
 
     return df
     
+def get_wordnet_pos(treebank_tag):
+
+    if treebank_tag.startswith('J'):
+        return wordnet.ADJ
+    elif treebank_tag.startswith('V'):
+        return wordnet.VERB
+    elif treebank_tag.startswith('N'):
+        return wordnet.NOUN
+    elif treebank_tag.startswith('R'):
+        return wordnet.ADV
+    else:
+        return ''
 
 def tokenise(df, tweet, index, copy):
     # Tokenise string (tweet)
     nWords = nltk.word_tokenize(tweet)  
+    taggedWords = nltk.pos_tag(nWords)      #POS Tagging
     # Sentiment Analysis
     df = sentimentLexicon(df, nWords, index)    
+    words = []
     # remove stopwords
     #words = [w for w in words if not w in stopwords.words('english')]
    
     lmtzr = WordNetLemmatizer()
-    for idx,each_word in enumerate(nWords):
+    for idx,tupleWord in enumerate(taggedWords):
         # check if it is an invalid word
-        if not wordnet.synsets(word_to_test):
+        if not wordnet.synsets(tupleWord[0]):
             # remove duplicate char from word (eg. SSYYNNOOPPSSIISS)
-            ''.join(ch for ch, _ in itertools.groupby(nWords[idx]))
+            ''.join(ch for ch, _ in itertools.groupby(tupleWord[0]))
         #lemmatize
-        nWords[idx] = lmtzr.lemmatize(each_word)
+        tag = get_wordnet_pos(tupleWord[1])
+        if(tag == ''):
+            word = lmtzr.lemmatize(tupleWord[0])
+        else:
+            word = lmtzr.lemmatize(tupleWord[0],tag)  
+        words.append(word + "/" + tupleWord[1])
 
     # tweet without stopwords
-    tweet_nostop = ' '.join(nWords)
-    words = []
+    tweet_nostop = ' '.join(words)
     
-    taggedWords = nltk.pos_tag(nWords)      #POS Tagging
-    for each_tag in taggedWords:
-        words.append(each_tag[0] + "/" + each_tag[1])
+    
+    
+    #for each_tag in taggedWords:
+        #words.append(each_tag[0] + "/" + each_tag[1])
 
     # TO-DO: Negation?
 
@@ -170,8 +189,8 @@ def tokenise(df, tweet, index, copy):
 def sentimentLexicon(df, words, index):
     # Create Pickle Files
     
-    helper.file_to_array_pickle("positive.txt", "positive")
-    helper.file_to_array_pickle("negative.txt", "negative")
+    #helper.file_to_array_pickle("positive.txt", "positive")
+    #helper.file_to_array_pickle("negative.txt", "negative")
     
 
     positive_list = helper.open_array_pickle("positive.p")
