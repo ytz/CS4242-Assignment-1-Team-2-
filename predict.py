@@ -2,6 +2,8 @@ import pandas as pd
 import pickle
 import helper
 from sklearn import metrics
+from sklearn.feature_extraction.text import TfidfTransformer
+
 
 # Set file names
 test_file = "preprocess_test.csv"
@@ -22,12 +24,17 @@ classifier = pickle.load(open(model_file))
 
 # Make prediction
 print("Making predictions")
+
+transformer = TfidfTransformer()
+features = transformer.fit_transform(features)
 predictions = classifier.predict(features)
 
 # Evaluation Metrics
 accuracy = metrics.accuracy_score(target, predictions)
+precision = metrics.precision_score(target, predictions, average='macro')
 recall = metrics.recall_score(target, predictions, average='macro')
 f1 = metrics.f1_score(target, predictions, average='macro')
 print "Accuracy: %f" % accuracy
+print "Precision: %f" % precision
 print "Recall: %f" % recall
 print "F1: %f" % f1

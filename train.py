@@ -5,6 +5,7 @@ import numpy as np
 import pickle
 import helper
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn import cross_validation
 from sklearn import metrics
 from sklearn.svm import LinearSVC
@@ -26,6 +27,9 @@ def main():
     # and features (list of features to help predict)
     target, features = helper.format_dataframe(train)
 
+    transformer = TfidfTransformer()
+    features = transformer.fit_transform(features)
+
     # Train Classifier
     print("Training the Classifier")
 
@@ -42,11 +46,13 @@ def main():
     mean_f1 = 0.0
     n = 10 # no. of fold for validation
     SEED = 42  # always use a seed for randomized procedures
+
+    classifier.fit(features, target)
     for i in range(n):
     	# for each iteration, randomly hold out 20% of the data as CV set
         X_train, X_cv, y_train, y_cv = cross_validation.train_test_split(
             features, target, test_size=.20, random_state=i*SEED)
-        classifier.fit(X_train, y_train)
+        # classifier.fit(X_train, y_train)
         preds = classifier.predict(X_cv)
 
         # Evaluation metrics
@@ -78,6 +84,7 @@ def main():
     # Result for dev file
     dev = pd.read_csv(dev_file)
     target_dev, features_dev = helper.format_dataframe(dev)
+    features_dev = transformer.fit_transform(features_dev)
     predictions_dev = classifier.predict(features_dev)
     np.savetxt('predict_dev.txt',predictions_dev,fmt="%s")
 
@@ -85,9 +92,11 @@ def main():
     print "==============="
     print " DEV FILE"
     accuracy = metrics.accuracy_score(target_dev, predictions_dev)
+    precision = metrics.precision_score(target_dev, predictions_dev, average='macro')
     recall = metrics.recall_score(target_dev, predictions_dev, average='macro')
     f1 = metrics.f1_score(target_dev, predictions_dev, average='macro')
     print "Accuracy: %f" % accuracy
+    print "Precision: %f" % precision
     print "Recall: %f" % recall
     print "F1: %f" % f1
     
