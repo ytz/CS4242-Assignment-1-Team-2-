@@ -8,6 +8,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn import cross_validation
 from sklearn import metrics
+from sklearn.metrics import confusion_matrix
 from sklearn.svm import LinearSVC
 from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsClassifier
@@ -62,6 +63,7 @@ def main():
         print "Accuracy (fold %d/%d): %f" % (i + 1, n, accuracy)
         print "Recall (fold %d/%d): %f" % (i + 1, n, recall)
         print "F1 (fold %d/%d): %f" % (i + 1, n, f1)
+        print confusion_matrix(y_cv, preds)
         print "*~*~*~*~*~*~*~*~"
         mean_accuracy += accuracy
         mean_recall += recall
@@ -99,6 +101,7 @@ def main():
     print "Precision: %f" % precision
     print "Recall: %f" % recall
     print "F1: %f" % f1
+    print confusion_matrix(target_dev, predictions_dev)
     
 
 

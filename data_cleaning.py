@@ -19,8 +19,20 @@ def cleanData(input_name, output_name):
             (df.sentiment == 'negative') |
             (df.sentiment == 'neutral' )]
 
-    # Retrieve User Bio
+    # Retrieve coordinates & place
     api = twitter_data.getAPI()
+    """
+    for index, row in df.iterrows():
+        df = twitter_data.getCoordinates(df, api, row['tweet id'], index)
+    """
+
+    # Retrieve User location
+    """
+    for index, row in df.iterrows():
+        df = twitter_data.inputUserLocation(df, api, row['user id'], index)
+    """
+    
+    # Retrieve User Bio
     for index, row in df.iterrows():
         df = twitter_data.inputUserBio(df, api, row['user id'], index)
 
@@ -30,15 +42,15 @@ def cleanData(input_name, output_name):
 def main():
     # Train
     train_in_name = "train.csv"
-    train_out_name = "fix_train.csv"
+    train_out_name = "fix_train_loc.csv"
 
     # Dev
     dev_in_name = "dev.csv"
-    dev_out_name = "fix_dev.csv"
+    dev_out_name = "fix_dev_loc.csv"
 
     # Test
     test_in_name = "test.csv"
-    test_out_name = "fix_test.csv"
+    test_out_name = "fix_test_loc.csv"
 
     print 'train'
     cleanData(train_in_name, train_out_name)

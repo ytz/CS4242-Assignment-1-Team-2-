@@ -38,3 +38,4 @@ print "Accuracy: %f" % accuracy
 print "Precision: %f" % precision
 print "Recall: %f" % recall
 print "F1: %f" % f1
+print confusion_matrix(target, predictions)
