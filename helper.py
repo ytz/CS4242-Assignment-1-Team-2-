@@ -30,24 +30,22 @@ def format_dataframe(dataframe):
 	    features (list of features)
 	"""
 	dataframe.fillna(0,inplace=True)
+
 	# Remove irrelevant columns
-	del dataframe["user id"]
 	del dataframe["tweet id"]
+	del dataframe["user id"]
 	del dataframe["username"]
 	del dataframe["annotator id"]
+	del dataframe["content"]
 	del dataframe["target"]
-
-	#debug
-	del dataframe["coordinates"]
-	del dataframe["place"]
+	del dataframe["user_location"]
+	del dataframe["user_bio"]
 
 	# change 'sentiment' to category type instead of string
 	#dataframe["sentiment"] = dataframe["sentiment"].astype('category') 
 	# One-hot encoding 'target'
 	#dataframe, _= one_hot_dataframe(dataframe, ['target'], replace=True)
 	# One-hot encoding 'user_location'
-	dataframe, _= one_hot_dataframe(dataframe, ['user_location'], replace=True)
-	del dataframe["user_location"]
 
 	target = dataframe["sentiment"]
 	del dataframe["sentiment"]

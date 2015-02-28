@@ -10,7 +10,6 @@ import pandas as pd
 import re
 from nltk.util import ngrams
 import itertools
-import twitter_data
 
 
 def preprocess(df, copy=False):
@@ -22,24 +21,22 @@ def preprocess(df, copy=False):
     for index, row in df.iterrows():
         print str(index+1) + '/' + str(len(df.index))
 
-        # Retrieve user bio
-        #df = twitter_data.inputUserBio(df, api, row['user id'], index)
-
         # Retrieve tweet for a particular row
         tweet = row['content']
 
-        # Enter Conservative Boolean to Dataframe
+        # Preprocess User Description
         user_bio = row['user_bio']
-        df = userBio(df, user_bio,porter_stemmer,index)
+        df = userBio(df, user_bio,porter_stemmer,index,copy)
+
+        # Preprocess User Location
+        user_loc = row['user_location']
+        df = userLoc(df, user_loc,porter_stemmer,index,copy)
 
         # Stats Collection
         df = collectStats(df, tweet, index)
 
         # lower-caps
         tweet = tweet.lower()
-
-
-        
 
         # TO-DO: abbrevation/emoticons replaced by actual meaning
 
@@ -62,17 +59,53 @@ def preprocess(df, copy=False):
         df = tokenise(df, tweet, index, copy)
 
 
-
     # remove 'content' column
-    df = df.drop('content',1)
+    #df = df.drop('content',1)
     # remove 'user_bio' column
-    df = df.drop('user_bio',1)
+    #df = df.drop('user_bio',1)
     # remove 'user_location' column
-    df = df.drop('user_location',1)
+    #df = df.drop('user_location',1)
 
     return df
 
-def userBio(df, user_bio,porter_stemmer,index):
+def userLoc(df, user_loc,porter_stemmer,index,copy):
+    user_loc = str(user_loc)
+
+    # lower-caps
+    user_loc = user_loc.lower()
+    user_loc = re.sub("['\":,.!?;&-=|@()/#]", "", user_loc)
+
+    user_loc = porter_stemmer.stem(user_loc)
+
+    words = nltk.word_tokenize(user_loc) 
+
+    # UNIGRAM FOR USER DESCRIPTION
+    if (copy == False):
+        for each_word in words:
+            each_word = 'LOC_' + each_word
+            try:
+                if (isinstance( df.loc[index, each_word], int )):
+                    df.loc[index, each_word] = df.loc[index, each_word] + 1 # replace cell value with 1 (presence), CHECK: Add by 1 works better?
+                else:
+                    df.loc[index, each_word] = 1
+            except KeyError:
+                df[each_word] = 0            # create column first
+                df.loc[index, each_word] = 1 # replace cell value with 1 (presence)
+
+    # Copy == True (for DEV and TEST)
+    else:
+        for each_word in words:
+            each_word = 'LOC_' + each_word
+            if each_word in df.columns:
+                if (isinstance( df.loc[index, each_word], int )):
+                    df.loc[index, each_word] = df.loc[index, each_word] + 1 # replace cell value with 1 (presence), CHECK: Add by 1 works better?
+                else:
+                    df.loc[index, each_word] = 1
+
+    return df
+
+
+def userBio(df, user_bio,porter_stemmer,index,copy):
     user_bio = str(user_bio)
    
     # lower-caps
@@ -95,6 +128,30 @@ def userBio(df, user_bio,porter_stemmer,index):
         df["con_boolean"] = 0            # create column first
         df.loc[index, "con_boolean"] = con_boolean # replace cell value 
 
+    # UNIGRAM FOR USER DESCRIPTION
+    if (copy == False):
+        for each_word in words:
+            each_word = 'BIO_' + each_word
+            try:
+                if (isinstance( df.loc[index, each_word], int )):
+                    df.loc[index, each_word] = df.loc[index, each_word] + 1 # replace cell value with 1 (presence), CHECK: Add by 1 works better?
+                else:
+                    df.loc[index, each_word] = 1
+            except KeyError:
+                df[each_word] = 0            # create column first
+                df.loc[index, each_word] = 1 # replace cell value with 1 (presence)
+
+    # Copy == True (for DEV and TEST)
+    else:
+        for each_word in words:
+            each_word = 'BIO_' + each_word
+            if each_word in df.columns:
+                if (isinstance( df.loc[index, each_word], int )):
+                    df.loc[index, each_word] = df.loc[index, each_word] + 1 # replace cell value with 1 (presence), CHECK: Add by 1 works better?
+                else:
+                    df.loc[index, each_word] = 1
+
+
     return df
     
 def get_wordnet_pos(treebank_tag):
@@ -113,6 +170,14 @@ def get_wordnet_pos(treebank_tag):
 def tokenise(df, tweet, index, copy):
     # Tokenise string (tweet)
     nWords = nltk.word_tokenize(tweet)  
+
+    # vocabulary normalization
+    for idx, word in enumerate(nWords):
+        vocab = open('lexicon_dict.csv','r')
+        for line in vocab:
+            if word == line.rstrip().split(',')[0]:
+             nWords[idx] = line.rstrip().split(',')[1]
+
     taggedWords = nltk.pos_tag(nWords)      #POS Tagging
     # Sentiment Analysis
     df = sentimentLexicon(df, nWords, index)    
@@ -227,6 +292,14 @@ def sentimentLexicon(df, words, index):
         df["no_of_negative_word"] = 0            # create column first
         df.loc[index, "no_of_negative_word"] = negative_score # replace cell value 
 
+    # Diff btw Positive and Negative Score
+    diff_score = positive_score - negative_score
+    try:
+        df.loc[index, "diff_in_score"] = diff_score
+    except KeyError:
+        df["diff_in_score"] = 0            # create column first
+        df.loc[index, "diff_in_score"] = diff_score # replace cell value
+
     
     # Enter Positive Freq to Dataframe
     positive_freq = helper.getPositiveFreq(words)
@@ -296,7 +369,7 @@ def collectStats(df, tweet, index):
 
 def copy_features(df_train, df_curr):
     column_list = list(df_train.columns.values)
-    for x in range(6, len(df_train.columns)):
+    for x in range(9, len(df_train.columns)):
         df_curr[column_list[x]] = 0
     df_curr = preprocess(df_curr, copy=True)
 
@@ -306,15 +379,18 @@ def copy_features(df_train, df_curr):
 def main():
     df_train = pd.read_csv('fix_train.csv')
     df_train = preprocess(df_train)
+    print len(df_train.columns)
     df_train.to_csv("preprocess_train.csv", na_rep="0",index=False,encoding='utf-8')
 
     # Tokenise 'Dev' and 'Test' using exact features from 'Train'
     df_dev = pd.read_csv('fix_dev.csv')
     df_dev = copy_features(df_train, df_dev)
+    print len(df_dev.columns)
     df_dev.to_csv("preprocess_dev.csv", na_rep="0",index=False,encoding='utf-8')
 
     df_test = pd.read_csv('fix_test.csv')
     df_test = copy_features(df_train, df_test)
+    print len(df_test.columns)
     df_test.to_csv("preprocess_test.csv", na_rep="0",index=False,encoding='utf-8')
 
 

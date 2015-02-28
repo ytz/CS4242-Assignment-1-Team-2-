@@ -26,10 +26,12 @@ def main():
     """
     train_file = "preprocess_train.csv"
     dev_file = "preprocess_dev.csv"
+    test_file = "preprocess_test.csv"
     model_file = "LSVC.pickle"
 
     # Read training csv data
-    train = pd.read_csv(train_file)
+    train = pd.read_csv(train_file,encoding='utf-8-sig',delimiter=',')
+    print len(train.columns)
 
     # Get target (what we want to predict)
     # and features (list of features to help predict)
@@ -39,15 +41,18 @@ def main():
 
     features = transformer.fit_transform(features)
 
+    print features.shape
+
     # Train Classifier
     print("Training the Classifier")
 
     """
     *~* Pick your classifier here *~*
     """
-    classifier = LinearSVC(C=100) # SVM
+    classifier = LinearSVC(class_weight='auto') # SVM
     #classifier = GaussianNB() # Naive Bayes
-    #classifier = KNeighborsClassifier(n_neighbors=3) # KNN
+    #classifier = KNeighborsClassifier(n_neighbors=20) # KNN
+    #classifier = RandomForestClassifier()
 
     # Cross-Validation
     mean_accuracy = 0.0
@@ -55,12 +60,14 @@ def main():
     mean_f1 = 0.0
     n = 10 # no. of fold for validation
     SEED = 42  # always use a seed for randomized procedures
-    """
+    
     # Feature Selection
     # Option 1. Removing features with low variance
-    sel = VarianceThreshold(threshold=(.8 * (1 - .8)))
+    threshold = 0.0
+    #sel = VarianceThreshold(threshold=(.8 * (1 - .8)))
+    sel = VarianceThreshold()
     features = sel.fit_transform(features)
-
+    """
     # Option 2. Univariate feature selection
     features = SelectPercentile(chi2, percentile=10).fit_transform(features, target)
 
@@ -104,9 +111,11 @@ def main():
     print confusion_matrix(target, predictions_train)
     
     # Result for dev file
-    dev = pd.read_csv(dev_file)
+    dev = pd.read_csv(dev_file,encoding='utf-8-sig',delimiter=',')
+    print len(dev.columns)
     target_dev, features_dev = helper.format_dataframe(dev)
     features_dev = transformer.fit_transform(features_dev)
+    print features_dev.shape
     predictions_dev = classifier.predict(features_dev)
     np.savetxt('predict_dev.txt',predictions_dev,fmt="%s")
 

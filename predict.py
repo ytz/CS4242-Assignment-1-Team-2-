@@ -12,7 +12,7 @@ model_file = "LSVC.pickle"
 
 # Read test data
 print("Reading test data")
-test = pd.read_csv(test_file)
+test = pd.read_csv(test_file,encoding='utf-8-sig',delimiter=',')
 
 # Get target (what we want to predict)
 # and features (list of features to help predict)
