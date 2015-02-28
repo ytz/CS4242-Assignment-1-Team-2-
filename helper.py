@@ -45,6 +45,10 @@ def format_dataframe(dataframe):
 	#dataframe["sentiment"] = dataframe["sentiment"].astype('category') 
 	# One-hot encoding 'target'
 	#dataframe, _= one_hot_dataframe(dataframe, ['target'], replace=True)
+	# One-hot encoding 'user_location'
+	dataframe, _= one_hot_dataframe(dataframe, ['user_location'], replace=True)
+	del dataframe["user_location"]
+
 	target = dataframe["sentiment"]
 	del dataframe["sentiment"]
 	features = dataframe.as_matrix()

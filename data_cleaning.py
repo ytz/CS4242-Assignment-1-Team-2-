@@ -3,7 +3,7 @@ import twitter_data
 
 # Removes weird spacing in 'sentiment' and
 # 'target' columns
-def cleanData(input_name, output_name):
+def cleanData(input_name, output_name,api):
     df = pd.read_csv(input_name)
 
     # Solves: TypeError: descriptor 'strip' requires a 'str'
@@ -19,50 +19,43 @@ def cleanData(input_name, output_name):
             (df.sentiment == 'negative') |
             (df.sentiment == 'neutral' )]
 
-    # Retrieve coordinates & place
-    api = twitter_data.getAPI()
-    """
-    for index, row in df.iterrows():
-        df = twitter_data.getCoordinates(df, api, row['tweet id'], index)
-    """
-
     # Retrieve User location
-    """
     for index, row in df.iterrows():
         df = twitter_data.inputUserLocation(df, api, row['user id'], index)
-    """
+    
     
     # Retrieve User Bio
     for index, row in df.iterrows():
         df = twitter_data.inputUserBio(df, api, row['user id'], index)
-
+    
 
     # Retrieve User Verified
     for index, row in df.iterrows():
-        df = twitter_data.inputUserVerified(df, api, row['user verified'], index)
+        df = twitter_data.inputUserVerified(df, api, row['user id'], index)
 
 
     # output edited csv
     df.to_csv(output_name, na_rep="0", index=False, encoding='utf-8')
 
 def main():
+    api = twitter_data.getAPI()
     # Train
     train_in_name = "train.csv"
-    train_out_name = "fix_train_loc.csv"
+    train_out_name = "fix_train.csv"
 
     # Dev
     dev_in_name = "dev.csv"
-    dev_out_name = "fix_dev_loc.csv"
+    dev_out_name = "fix_dev.csv"
 
     # Test
     test_in_name = "test.csv"
-    test_out_name = "fix_test_loc.csv"
+    test_out_name = "fix_test.csv"
 
     print 'train'
-    cleanData(train_in_name, train_out_name)
+    cleanData(train_in_name, train_out_name,api)
     print 'dev'
-    cleanData(dev_in_name, dev_out_name)
+    cleanData(dev_in_name, dev_out_name,api)
     print 'test'
-    cleanData(test_in_name, test_out_name)
+    cleanData(test_in_name, test_out_name,api)
 
 main()
