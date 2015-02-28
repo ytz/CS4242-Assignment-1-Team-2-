@@ -28,6 +28,48 @@ def getAPI():
 
 	return api
 
+def getSuzzieAPI():
+	consumer_key = "2Jyn96zhsliDpjiOcqZnCNwqX"
+	consumer_secret = "KoDLlSjIl2e8S7xBkMkbdbk5KjAJWC1wkp3O6Pb71JvakCaAce"
+	access_token = "874954729-RhhlakcTpmTE2OpcCX6FWsLLEcxBwQZFv4MuBfig"
+	access_token_secret = "KCvINjOwKS9iwj6BUhjcF5C8tF3iFTvXc5DME8J8gEqyg"
+
+	auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+	auth.set_access_token(access_token, access_token_secret)
+
+	api = tweepy.API(auth)
+
+	return api
+
+def getYsAPI():
+	consumer_key = "CMkbsLAV6MJnLOqZzocyzPVcQ"
+	consumer_secret = "6MXATxS3ItYLVVAFRnpGBuyipVLPt1opfhOViE1EJQR2UnfvXE"
+	access_token = "158665010-3EQVH9m7v1BLsSlu3SiO8leOYzViESV38FGZGdoU"
+	access_token_secret = "thKZLcXa9MFpvOf5sGxy6WprhYPa8H73Pwv0suCXyOeYf"
+
+	auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+	auth.set_access_token(access_token, access_token_secret)
+
+	api = tweepy.API(auth)
+
+	return api
+
+def inputUserLocation(df, api, user_id, index):
+	try:
+		user = api.get_user(user_id)
+		user_location = user.location
+
+	except tweepy.error.TweepError:
+		user_location = ""
+
+	try:
+	    df.loc[index, "user_location"] = user_location
+	except KeyError:
+	    df["user_location"] = 0            # create column first
+	    df.loc[index, "user_location"] = user_location # replace cell value 
+    
+	return df
+
 def inputUserBio(df, api, user_id, index):
 	try:
 		user = api.get_user(user_id)
@@ -52,9 +94,9 @@ def inputUserVerified(df, api, user_id, index):
 	except tweepy.error.TweepError:
 		user_verified = ""
 
-	if (user_verified == 'True'):
+	if (user_verified == 'TRUE'):
 		user_verified = 1
-	elif(user_verified == 'False'):
+	elif(user_verified == 'FALSE'):
 		user_verified = 0
 
 	try:

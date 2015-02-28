@@ -3,6 +3,7 @@ import pickle
 import helper
 from sklearn import metrics
 from sklearn.feature_extraction.text import TfidfTransformer
+from sklearn.metrics import confusion_matrix
 
 
 # Set file names

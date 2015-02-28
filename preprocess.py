@@ -66,6 +66,8 @@ def preprocess(df, copy=False):
     df = df.drop('content',1)
     # remove 'user_bio' column
     df = df.drop('user_bio',1)
+    # remove 'user_location' column
+    df = df.drop('user_location',1)
 
     return df
 
@@ -162,10 +164,10 @@ def tokenise(df, tweet, index, copy):
 
 def sentimentLexicon(df, words, index):
     # Create Pickle Files
-    
+    """
     helper.file_to_array_pickle("positive.txt", "positive")
     helper.file_to_array_pickle("negative.txt", "negative")
-    
+    """
 
     positive_list = helper.open_array_pickle("positive.p")
     negative_list = helper.open_array_pickle("negative.p")
@@ -245,7 +247,7 @@ def collectStats(df, tweet, index):
         df["no_of_exclaim"] = 0            # create column first
         df.loc[index, "no_of_exclaim"] = no_of_exclam # replace cell value
 
-    """
+    
     # Number of '#', place more emphasis with tweets with more hashtags
     no_of_hashtag = tweet.count('#')
     # Normalise
@@ -256,7 +258,7 @@ def collectStats(df, tweet, index):
     except KeyError:
         df["no_of_exclaim"] = 0            # create column first
         df.loc[index, "no_of_hashtag"] = no_of_hashtag # replace cell value
-    """
+    
     return df
 
 
