@@ -37,6 +37,10 @@ def format_dataframe(dataframe):
 	del dataframe["annotator id"]
 	del dataframe["target"]
 
+	#debug
+	del dataframe["coordinates"]
+	del dataframe["place"]
+
 	# change 'sentiment' to category type instead of string
 	#dataframe["sentiment"] = dataframe["sentiment"].astype('category') 
 	# One-hot encoding 'target'

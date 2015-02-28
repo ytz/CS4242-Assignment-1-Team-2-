@@ -4,6 +4,7 @@ import nltk
 from nltk.stem.porter import PorterStemmer
 from nltk.stem.wordnet import WordNetLemmatizer
 from nltk.corpus import stopwords
+from nltk.corpus import wordnet
 from nltk.tag import pos_tag 
 import pandas as pd
 import re
@@ -96,25 +97,50 @@ def userBio(df, user_bio,porter_stemmer,index):
 
     return df
     
+def get_wordnet_pos(treebank_tag):
+
+    if treebank_tag.startswith('J'):
+        return wordnet.ADJ
+    elif treebank_tag.startswith('V'):
+        return wordnet.VERB
+    elif treebank_tag.startswith('N'):
+        return wordnet.NOUN
+    elif treebank_tag.startswith('R'):
+        return wordnet.ADV
+    else:
+        return ''
 
 def tokenise(df, tweet, index, copy):
     # Tokenise string (tweet)
     nWords = nltk.word_tokenize(tweet)  
+    taggedWords = nltk.pos_tag(nWords)      #POS Tagging
     # Sentiment Analysis
     df = sentimentLexicon(df, nWords, index)    
+    words = []
     # remove stopwords
     #words = [w for w in words if not w in stopwords.words('english')]
-    # remove duplicate char from word (eg. SSYYNNOOPPSSIISS)
-    for idx,each_word in enumerate(nWords):
-        ''.join(ch for ch, _ in itertools.groupby(nWords[idx]))
+   
+    lmtzr = WordNetLemmatizer()
+    for idx,tupleWord in enumerate(taggedWords):
+        # check if it is an invalid word
+        if not wordnet.synsets(tupleWord[0]):
+            # remove duplicate char from word (eg. SSYYNNOOPPSSIISS)
+            ''.join(ch for ch, _ in itertools.groupby(tupleWord[0]))
+        #lemmatize
+        tag = get_wordnet_pos(tupleWord[1])
+        if(tag == ''):
+            word = lmtzr.lemmatize(tupleWord[0])
+        else:
+            word = lmtzr.lemmatize(tupleWord[0],tag)  
+        words.append(word + "/" + tupleWord[1])
 
     # tweet without stopwords
-    tweet_nostop = ' '.join(nWords)
-    words = []
+    tweet_nostop = ' '.join(words)
     
-    taggedWords = nltk.pos_tag(nWords)      #POS Tagging
-    for each_tag in taggedWords:
-        words.append(each_tag[0] + "/" + each_tag[1])
+    
+    
+    #for each_tag in taggedWords:
+        #words.append(each_tag[0] + "/" + each_tag[1])
 
     # TO-DO: Negation?
 
@@ -164,10 +190,16 @@ def tokenise(df, tweet, index, copy):
 
 def sentimentLexicon(df, words, index):
     # Create Pickle Files
+
     """
     helper.file_to_array_pickle("positive.txt", "positive")
     helper.file_to_array_pickle("negative.txt", "negative")
     """
+
+    
+    #helper.file_to_array_pickle("positive.txt", "positive")
+    #helper.file_to_array_pickle("negative.txt", "negative")
+    
 
     positive_list = helper.open_array_pickle("positive.p")
     negative_list = helper.open_array_pickle("negative.p")

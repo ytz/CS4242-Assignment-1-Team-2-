@@ -6,6 +6,7 @@ import pickle
 import helper
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_extraction.text import TfidfTransformer
+from sklearn.feature_extraction.text import CountVectorizer
 from sklearn import cross_validation
 from sklearn import metrics
 from sklearn.metrics import confusion_matrix
@@ -33,8 +34,9 @@ def main():
     # Get target (what we want to predict)
     # and features (list of features to help predict)
     target, features = helper.format_dataframe(train)
-
+  
     transformer = TfidfTransformer()
+
     features = transformer.fit_transform(features)
 
     # Train Classifier
